@@ -15,8 +15,12 @@ services:
     build:
       context: .
       dockerfile: ./apps/intermediary-service/Dockerfile
+      target: development
+    command: npm run start:dev intermediary-service
     hostname: intermediary-service
     container_name: intermediary-service
+    ports:
+      - 3000:3000
     volumes:
       - ./apps/intermediary-service/src:/usr/src/app
 
@@ -24,6 +28,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/order-service/Dockerfile
+      target: development
+    command: npm run start:dev order-service
     hostname: order-service
     container_name: order-service
     volumes:
@@ -33,6 +39,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/inventory-service/Dockerfile
+      target: development
+    command: npm run start:dev inventory-service
     hostname: inventory-service
     container_name: inventory-service
     volumes:
