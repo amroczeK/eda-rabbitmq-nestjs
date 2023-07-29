@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { OrderServiceController } from './order-service.controller';
-import { OrderServiceService } from './order-service.service';
+import { OrderService } from './order-service.service';
 import { RabbitMqModule } from '@app/common/rabbit-mq/rabbit-mq.module';
 import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
@@ -18,6 +18,6 @@ import Joi from 'joi';
     RabbitMqModule,
   ],
   controllers: [OrderServiceController],
-  providers: [OrderServiceService],
+  providers: [OrderService],
 })
 export class OrderServiceModule {}
