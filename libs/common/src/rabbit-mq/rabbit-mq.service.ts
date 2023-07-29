@@ -1,10 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RmqOptions, Transport } from '@nestjs/microservices';
+import { connect, Connection, Channel } from 'amqplib';
 
 @Injectable()
 export class RabbitMqService {
+  private connection: Connection;
+  private channel: Channel;
+
   constructor(private readonly configService: ConfigService) {}
+
+  async connect() {
+    this.connection = await connect(
+      this.configService.get<string>('RABBIT_MQ_URI'),
+    );
+    this.channel = await this.connection.createChannel();
+  }
+
+  async publishMessage(queue: string, message: string) {
+    await this.channel.assertQueue(queue, { durable: false });
+    this.channel.sendToQueue(queue, Buffer.from(message));
+  }
+
+  async close() {
+    await this.channel.close();
+    await this.connection.close();
+  }
 
   getOptions(queue: string, noAck = false): RmqOptions {
     return {
