@@ -10,7 +10,7 @@
   "monorepo": true,
   "root": "apps/intermediary-service",
   "projects": {
-    "eda-rabbitmq-nestjs": {
+    "intermediary-service": {
       "type": "application",
       "root": "apps/intermediary-service",
       "entryFile": "main",

@@ -1,6 +1,18 @@
 version: '3.9'
 
 services:
+  db:
+    image: postgres:latest
+    container_name: shopdb
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - 5432:5432
+    volumes:
+      - ./volumes/postgresdata:/var/lib/postgresql/data
+
   rabbitmq:
     image: rabbitmq:3.12-management
     container_name: rabbitmq
@@ -22,7 +34,8 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./apps/intermediary-service/src:/usr/src/app
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
 
   order-service:
     build:
@@ -32,8 +45,16 @@ services:
     command: npm run start:dev order-service
     hostname: order-service
     container_name: order-service
+    depends_on:
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
     volumes:
-      - ./apps/order-service/src:/usr/src/app
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - ./apps/order-service/.env
 
   inventory-service:
     build:
@@ -43,5 +64,13 @@ services:
     command: npm run start:dev inventory-service
     hostname: inventory-service
     container_name: inventory-service
+    depends_on:
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
     volumes:
-      - ./apps/inventory-service/src:/usr/src/app
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - ./apps/inventory-service/.env

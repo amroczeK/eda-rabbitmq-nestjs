@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { InventoryServiceController } from './inventory-service.controller';
-import { InventoryServiceService } from './inventory-service.service';
+import { InventoryService } from './inventory-service.service';
 import { RabbitMqModule } from '@app/common/rabbit-mq/rabbit-mq.module';
 import { ConfigModule } from '@nestjs/config';
-import Joi from 'joi';
+import * as Joi from 'joi';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Inventory } from './entities/inventory.entity';
+import { DatabaseModule } from '@app/common/database/database.module';
 
 @Module({
   imports: [
@@ -11,13 +14,15 @@ import Joi from 'joi';
       isGlobal: true,
       validationSchema: Joi.object({
         RABBIT_MQ_URI: Joi.string().required(),
-        RABBIT_MQ_BILLING_QUEUE: Joi.string().required(),
+        RABBIT_MQ_INVENTORY_QUEUE: Joi.string().required(),
       }),
+      envFilePath: './apps/order-service/.env',
     }),
-    ,
+    DatabaseModule,
+    TypeOrmModule.forFeature([Inventory]),
     RabbitMqModule,
   ],
   controllers: [InventoryServiceController],
-  providers: [InventoryServiceService],
+  providers: [InventoryService],
 })
 export class InventoryServiceModule {}

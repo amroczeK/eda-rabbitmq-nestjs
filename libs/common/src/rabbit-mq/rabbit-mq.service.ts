@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RmqOptions, Transport } from '@nestjs/microservices';
+import { RmqContext, RmqOptions, Transport } from '@nestjs/microservices';
 import { connect, Connection, Channel } from 'amqplib';
 
 @Injectable()
@@ -25,6 +25,12 @@ export class RabbitMqService {
   async close() {
     await this.channel.close();
     await this.connection.close();
+  }
+
+  ack(context: RmqContext) {
+    const channel = context.getChannelRef();
+    const originalMessage = context.getMessage();
+    channel.ack(originalMessage);
   }
 
   getOptions(queue: string, noAck = false): RmqOptions {

@@ -9,6 +9,7 @@ interface RabbitMqModuleOptions {
 
 @Module({
   providers: [RabbitMqService],
+  exports: [RabbitMqService],
 })
 export class RabbitMqModule {
   static register({ name }: RabbitMqModuleOptions): DynamicModule {
