@@ -3,8 +3,8 @@ import { RabbitMqService } from '@app/common/rabbit-mq/rabbit-mq.service';
 import { CreateOrderDto } from 'apps/order-service/src/dtos/order.dto';
 
 @Controller()
-export class AppController {
-  private readonly logger = new Logger(AppController.name);
+export class IntermediaryController {
+  private readonly logger = new Logger(IntermediaryController.name);
 
   constructor(
     @Inject(RabbitMqService) private readonly rabbitMqService: RabbitMqService,
