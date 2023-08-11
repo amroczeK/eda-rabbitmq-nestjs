@@ -16,6 +16,11 @@ services:
   rabbitmq:
     image: rabbitmq:3.12-management
     container_name: rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -31,6 +36,9 @@ services:
     command: npm run start:dev intermediary-service
     hostname: intermediary-service
     container_name: intermediary-service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     ports:
       - 3000:3000
     volumes:
@@ -49,6 +57,8 @@ services:
       db:
         condition: service_started
       rabbitmq:
+        condition: service_healthy
+      inventory-service:
         condition: service_started
     volumes:
       - .:/usr/src/app
@@ -68,7 +78,7 @@ services:
       db:
         condition: service_started
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
