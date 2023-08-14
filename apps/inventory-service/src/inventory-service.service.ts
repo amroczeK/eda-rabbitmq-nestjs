@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Inventory } from './entities/inventory.entity';
 import { UpdateInventoryDto } from './dtos/inventory.dto';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class InventoryService {
@@ -22,6 +23,14 @@ export class InventoryService {
       return true;
     } catch (error) {
       this.logger.error(`Error checking inventory: ${error.message}`);
+    }
+  }
+
+  async updateInventoryFromOrder(data: any): Promise<void> {
+    try {
+      this.logger.log(`Updating inventory based on order: ${data}`);
+    } catch (error) {
+      this.logger.error(`Error updating inventory based on order: ${data}`);
     }
   }
 

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { IntermediaryController } from './intermediary.controller';
 import { IntermediaryService } from './intermediary.service';
-import { RabbitMqService } from '@app/common/rabbit-mq/rabbit-mq.service';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 
 @Module({
   imports: [
@@ -15,8 +15,17 @@ import * as Joi from 'joi';
       }),
       envFilePath: './apps/intermediary-service/.env',
     }),
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        {
+          name: 'shop.topic',
+          type: 'topic',
+        },
+      ],
+      uri: 'amqp://guest:guest@rabbitmq:5672',
+    }),
   ],
   controllers: [IntermediaryController],
-  providers: [IntermediaryService, RabbitMqService],
+  providers: [IntermediaryService],
 })
 export class IntermediaryModule {}

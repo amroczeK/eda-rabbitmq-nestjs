@@ -1,4 +1,4 @@
-import { RabbitMqService } from '@app/common/rabbit-mq/rabbit-mq.service';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateOrderDto } from 'apps/order-service/src/dtos/order.dto';
 
@@ -6,14 +6,14 @@ import { CreateOrderDto } from 'apps/order-service/src/dtos/order.dto';
 export class IntermediaryService {
   private readonly logger = new Logger(IntermediaryService.name);
 
-  constructor(private readonly rabbitMqService: RabbitMqService) {}
+  constructor(private readonly amqpConnection: AmqpConnection) {}
 
   async publishOrder(orderData: CreateOrderDto): Promise<string> {
     try {
-      const routingKey = 'shop.order.placed';
-      await this.rabbitMqService.publishMessage(
-        routingKey,
-        JSON.stringify({ data: orderData }),
+      await this.amqpConnection.publish(
+        'shop.topic',
+        'shop.order.placed',
+        orderData,
       );
       this.logger.log(`Order successfully published.`);
       return 'Order published successfully!';

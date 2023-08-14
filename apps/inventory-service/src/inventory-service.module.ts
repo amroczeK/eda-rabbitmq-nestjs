@@ -7,6 +7,7 @@ import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Inventory } from './entities/inventory.entity';
 import { DatabaseModule } from '@app/common/database/database.module';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 
 @Module({
   imports: [
@@ -23,11 +24,24 @@ import { DatabaseModule } from '@app/common/database/database.module';
       }),
       envFilePath: './apps/inventory-service/.env',
     }),
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        {
+          name: 'shop.topic',
+          type: 'topic',
+        },
+        {
+          name: 'shop.direct',
+          type: 'direct',
+        },
+      ],
+      uri: 'amqp://guest:guest@rabbitmq:5672',
+      enableControllerDiscovery: true,
+    }),
     DatabaseModule,
     TypeOrmModule.forFeature([Inventory]),
-    RabbitMqModule,
   ],
   controllers: [InventoryServiceController],
-  providers: [InventoryService],
+  providers: [InventoryService, InventoryServiceController],
 })
 export class InventoryServiceModule {}
