@@ -23,10 +23,9 @@ export class OrderService {
 
   async createOrder(orderData: CreateOrderDto): Promise<void> {
     try {
-      this.logger.log(`Order received: ${JSON.stringify(orderData)}`);
-      const stockAvailable = await this.validateStockForOrder(orderData);
+      //const stockAvailable = await this.validateStockForOrder(orderData);
 
-      if (!stockAvailable) throw 'Order has unavailable stock.';
+      //if (!stockAvailable) throw 'Order has unavailable stock.';
 
       this.logger.log(`Order created successfully. ID: 123`);
 
