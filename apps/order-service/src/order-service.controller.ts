@@ -16,7 +16,7 @@ export class OrderServiceController {
 
   constructor(private readonly orderService: OrderService) {}
 
-  @EventPattern({ pattern: 'order', transport: Transport.RMQ })
+  @EventPattern({ pattern: 'shop.order.placed', transport: Transport.RMQ })
   async handleOrderPlacedEvent(
     @Payload() orderData: CreateOrderDto,
     @Ctx() context: RmqContext,
