@@ -21,6 +21,11 @@ export class RabbitMqService {
     let retries = 0;
     while (retries < this.maxRetries) {
       try {
+        this.logger.log(
+          `${this.configService.get<string>(
+            'SERVICE_NAME',
+          )} is trying to establish a connection to RabbitMQ`,
+        );
         await this.connect();
         this.connection.on('close', () => {
           this.logger.error(
@@ -75,6 +80,7 @@ export class RabbitMqService {
 
   async publishMessage(routingKey: string, message: string) {
     try {
+      this.logger.log(`RMQ Publishing to ${routingKey} with ${message}`);
       this.channel.publish(this.exchangeName, routingKey, Buffer.from(message));
     } catch (err) {
       this.logger.error(`Failed to publish message: ${err.message}`);
@@ -100,7 +106,7 @@ export class RabbitMqService {
     }
   }
 
-  getOptions(queue: string, noAck = false): RmqOptions {
+  getOptions(queue: string, noAck = true): RmqOptions {
     return {
       transport: Transport.RMQ,
       options: {
@@ -108,6 +114,9 @@ export class RabbitMqService {
         queue: this.configService.get<string>(`RABBIT_MQ_${queue}_QUEUE`),
         noAck,
         persistent: true,
+        queueOptions: {
+          durable: true,
+        },
       },
     };
   }
