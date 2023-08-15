@@ -1,14 +1,7 @@
-// order-service/src/order.controller.ts
 import { Controller, Logger } from '@nestjs/common';
-import {
-  Ctx,
-  EventPattern,
-  Payload,
-  RmqContext,
-  Transport,
-} from '@nestjs/microservices';
 import { OrderService } from './order-service.service';
 import { CreateOrderDto } from './dtos/order.dto';
+import { RabbitPayload, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 @Controller()
 export class OrderServiceController {
@@ -16,12 +9,14 @@ export class OrderServiceController {
 
   constructor(private readonly orderService: OrderService) {}
 
-  @EventPattern({ pattern: 'shop.order.placed', transport: Transport.RMQ })
+  @RabbitSubscribe({
+    exchange: 'shop.topic',
+    routingKey: 'shop.order.placed',
+    queue: 'order',
+  })
   async handleOrderPlacedEvent(
-    @Payload() orderData: CreateOrderDto,
-    @Ctx() context: RmqContext,
+    @RabbitPayload() orderData: CreateOrderDto,
   ): Promise<void> {
-    this.logger.log(`Pattern: ${context.getPattern()}`);
     this.logger.log(`Order received: ${JSON.stringify(orderData)}`);
     await this.orderService.createOrder(orderData);
   }

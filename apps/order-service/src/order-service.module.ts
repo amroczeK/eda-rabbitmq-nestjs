@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { OrderServiceController } from './order-service.controller';
 import { OrderService } from './order-service.service';
-import { RabbitMqModule } from '@app/common/rabbit-mq/rabbit-mq.module';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
-import { INVENTORY_SERVICE } from './constants';
 import { DatabaseModule } from '@app/common/database/database.module';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import * as Joi from 'joi';
 
 @Module({
   imports: [
@@ -25,13 +24,24 @@ import { DatabaseModule } from '@app/common/database/database.module';
       }),
       envFilePath: './apps/order-service/.env',
     }),
-    DatabaseModule,
-    RabbitMqModule.register({
-      name: INVENTORY_SERVICE,
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [
+        {
+          name: 'shop.topic',
+          type: 'topic',
+        },
+        {
+          name: 'shop.direct',
+          type: 'direct',
+        },
+      ],
+      uri: 'amqp://guest:guest@rabbitmq:5672',
+      enableControllerDiscovery: true,
     }),
+    DatabaseModule,
     TypeOrmModule.forFeature([Order, OrderItem]),
   ],
   controllers: [OrderServiceController],
-  providers: [OrderService],
+  providers: [OrderService, OrderServiceController],
 })
 export class OrderServiceModule {}
