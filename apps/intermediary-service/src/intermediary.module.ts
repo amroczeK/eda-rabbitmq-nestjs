@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { IntermediaryController } from './intermediary.controller';
 import { IntermediaryService } from './intermediary.service';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import * as Joi from 'joi';
 
 @Module({
   imports: [

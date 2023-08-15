@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { OrderServiceController } from './order-service.controller';
 import { OrderService } from './order-service.service';
-import { RabbitMqModule } from '@app/common/rabbit-mq/rabbit-mq.module';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
-import { INVENTORY_SERVICE } from './constants';
 import { DatabaseModule } from '@app/common/database/database.module';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import * as Joi from 'joi';
 
 @Module({
   imports: [

@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { InventoryServiceController } from './inventory-service.controller';
 import { InventoryService } from './inventory-service.service';
-import { RabbitMqModule } from '@app/common/rabbit-mq/rabbit-mq.module';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Inventory } from './entities/inventory.entity';
 import { DatabaseModule } from '@app/common/database/database.module';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import * as Joi from 'joi';
 
 @Module({
   imports: [

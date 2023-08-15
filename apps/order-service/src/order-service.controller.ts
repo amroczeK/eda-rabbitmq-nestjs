@@ -1,16 +1,7 @@
-// order-service/src/order.controller.ts
-import { Controller, Logger, UseInterceptors } from '@nestjs/common';
-import {
-  Ctx,
-  EventPattern,
-  Payload,
-  RmqContext,
-  Transport,
-} from '@nestjs/microservices';
+import { Controller, Logger } from '@nestjs/common';
 import { OrderService } from './order-service.service';
 import { CreateOrderDto } from './dtos/order.dto';
 import { RabbitPayload, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { TransformInterceptor } from './transform.interceptor';
 
 @Controller()
 export class OrderServiceController {

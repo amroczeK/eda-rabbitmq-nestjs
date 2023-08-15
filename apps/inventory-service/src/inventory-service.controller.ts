@@ -1,11 +1,4 @@
-import { Controller, Logger, Inject } from '@nestjs/common';
-import {
-  Ctx,
-  EventPattern,
-  MessagePattern,
-  Payload,
-  RmqContext,
-} from '@nestjs/microservices';
+import { Controller, Logger } from '@nestjs/common';
 import { InventoryService } from './inventory-service.service';
 import { UpdateInventoryDto } from './dtos/inventory.dto';
 import {

@@ -21,22 +21,12 @@ export class OrderService {
   async createOrder(orderData: CreateOrderDto): Promise<void> {
     try {
       this.logger.log(`Order received 123: ${JSON.stringify(orderData)}`);
-      //const stockAvailable = await this.validateStockForOrder(orderData);
 
-      //if (!stockAvailable) throw 'Order has unavailable stock.';
+      const stockAvailable = await this.validateStockAvailableInInventory(
+        orderData,
+      );
 
-      this.logger.log(`Order created successfully. ID: 123`);
-
-      const response = await this.amqpConnection.request<any>({
-        exchange: 'shop.direct',
-        routingKey: 'shop.inventory.check',
-        payload: {
-          request: orderData,
-        },
-        timeout: 10000,
-      });
-
-      this.logger.log(`Response: ${response}`);
+      if (!stockAvailable) throw 'Order has items with unavailable stock.';
 
       // const order = new Order();
       // order.customer_name = orderData.customer_name;
@@ -67,6 +57,8 @@ export class OrderService {
       // // Save the Order entity
       // this.orderRepository.save(order);
 
+      this.logger.log(`Order was validated and created, publishing event.`);
+
       await this.amqpConnection.publish(
         'shop.topic',
         'shop.order.created',
@@ -77,22 +69,22 @@ export class OrderService {
     }
   }
 
-  private async validateStockForOrder(
+  private async validateStockAvailableInInventory(
     orderData: CreateOrderDto,
   ): Promise<boolean> {
-    const pattern = { cmd: 'check_inventory' };
-    const payload = orderData;
-
-    return true;
-
-    // try {
-    //   const stockIsValid = await lastValueFrom(
-    //     this.inventoryClient.send<boolean>(pattern, payload),
-    //   );
-    //   return stockIsValid;
-    // } catch (e) {
-    //   throw new RpcException('Error checking inventory');
-    // }
+    try {
+      const response = await this.amqpConnection.request<any>({
+        exchange: 'shop.direct',
+        routingKey: 'shop.inventory.check',
+        payload: {
+          request: orderData,
+        },
+        timeout: 10000,
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async cancelOrder(): Promise<void> {
