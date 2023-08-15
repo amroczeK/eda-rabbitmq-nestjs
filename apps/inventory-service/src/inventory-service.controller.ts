@@ -15,16 +15,6 @@ export class InventoryServiceController {
 
   @RabbitSubscribe({
     exchange: 'shop.topic',
-    routingKey: 'shop.order.created',
-    queue: 'inventory',
-  })
-  async handleOrderCreated(@RabbitPayload() data: any): Promise<void> {
-    this.logger.log('handleOrderCreated() received');
-    this.inventoryService.updateInventoryFromOrder(data);
-  }
-
-  @RabbitSubscribe({
-    exchange: 'shop.topic',
     routingKey: 'shop.inventory.update',
     queue: 'inventory',
   })
@@ -32,6 +22,16 @@ export class InventoryServiceController {
     @RabbitPayload() inventoryData: UpdateInventoryDto,
   ): Promise<void> {
     this.logger.log(`Updating product: ${inventoryData.product_name}`);
+  }
+
+  @RabbitSubscribe({
+    exchange: 'shop.topic',
+    routingKey: 'shop.order.created',
+    queue: 'inventory',
+  })
+  async handleOrderCreated(@RabbitPayload() data: any): Promise<void> {
+    this.logger.log('handleOrderCreated() received');
+    this.inventoryService.updateInventoryFromOrder(data);
   }
 
   @RabbitRPC({

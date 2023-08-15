@@ -17,10 +17,11 @@ services:
     image: rabbitmq:3.12-management
     container_name: rabbitmq
     healthcheck:
+      #test: ['CMD', 'rabbitmqctl', 'check_running']
       test: rabbitmq-diagnostics -q ping
       interval: 30s
-      timeout: 30s
-      retries: 3
+      timeout: 10s
+      retries: 5
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -39,6 +40,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+        restart: true
     ports:
       - 3000:3000
     volumes:
@@ -54,10 +56,11 @@ services:
     hostname: order-service
     container_name: order-service
     depends_on:
-      db:
-        condition: service_started
       rabbitmq:
         condition: service_healthy
+        restart: true
+      db:
+        condition: service_started
       inventory-service:
         condition: service_started
     volumes:
@@ -75,10 +78,11 @@ services:
     hostname: inventory-service
     container_name: inventory-service
     depends_on:
-      db:
-        condition: service_started
       rabbitmq:
         condition: service_healthy
+        restart: true
+      db:
+        condition: service_started
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
