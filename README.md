@@ -15,7 +15,7 @@ Simple ordering system demonstrating Event Driven Architecture using NestJs for 
 
 # Architecture Diagram
 
-![Architecture Diagram](/architecture.png)
+![Architecture Diagram](/docs/architecture.png)
 
 # Installation
 
