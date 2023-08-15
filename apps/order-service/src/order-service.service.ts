@@ -28,34 +28,34 @@ export class OrderService {
 
       if (!stockAvailable) throw 'Order has items with unavailable stock.';
 
-      // const order = new Order();
-      // order.customer_name = orderData.customer_name;
-      // order.customer_email = orderData.customer_email;
-      // order.total_amount = orderData.total_amount;
+      const order = new Order();
+      order.customer_name = orderData.customer_name;
+      order.customer_email = orderData.customer_email;
+      order.total_amount = orderData.total_amount;
 
-      // const orderItems: OrderItem[] = orderData.order_items.map(
-      //   (itemData: OrderItemDto) => {
-      //     const orderItem = new OrderItem();
-      //     orderItem.product_name = itemData.product_name;
-      //     orderItem.quantity = itemData.quantity;
-      //     orderItem.price = itemData.price;
-      //     return orderItem;
-      //   },
-      // );
+      const orderItems: OrderItem[] = orderData.order_items.map(
+        (itemData: OrderItemDto) => {
+          const orderItem = new OrderItem();
+          orderItem.product_name = itemData.product_name;
+          orderItem.quantity = itemData.quantity;
+          orderItem.price = itemData.price;
+          return orderItem;
+        },
+      );
 
-      // this.logger.log(`Order: ${order}`);
-      // this.logger.log(`Order items: ${orderItems}`);
+      this.logger.log(`Order: ${JSON.stringify(order)}`);
+      this.logger.log(`Order items: ${JSON.stringify(order)}`);
 
-      // // Save OrderItem entities separately
-      // const savedOrderItems = await this.orderItemRepository.save(orderItems);
+      // Save OrderItem entities separately
+      const savedOrderItems = await this.orderItemRepository.save(orderItems);
 
-      // this.logger.log(`Saved order items: ${savedOrderItems}`);
+      this.logger.log(`Saved order items: ${savedOrderItems}`);
 
-      // // Associate the saved OrderItem entities with the Order entity
-      // order.order_items = savedOrderItems;
+      // Associate the saved OrderItem entities with the Order entity
+      order.order_items = savedOrderItems;
 
-      // // Save the Order entity
-      // this.orderRepository.save(order);
+      // Save the Order entity
+      this.orderRepository.save(order);
 
       this.logger.log(`Order was validated and created, publishing event.`);
 

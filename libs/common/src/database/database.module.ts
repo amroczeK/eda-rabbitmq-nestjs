@@ -14,7 +14,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
-        entities: [__dirname + '/../**/*.entity.{js,ts}'],
+        autoLoadEntities: true,
         synchronize: true,
       }),
     }),
