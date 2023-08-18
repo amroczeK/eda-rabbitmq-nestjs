@@ -1,7 +1,7 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CreateOrderDto, OrderItemDto } from './dtos/order.dto';
 import { OrderItem } from './entities/order-item.entity';
@@ -16,9 +16,14 @@ export class OrderService {
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
     private readonly amqpConnection: AmqpConnection,
+    private readonly dataSource: DataSource,
   ) {}
 
   async createOrder(orderData: CreateOrderDto): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
       this.logger.log(`Order received 123: ${JSON.stringify(orderData)}`);
 
@@ -31,7 +36,8 @@ export class OrderService {
       const order = new Order();
       order.customer_name = orderData.customer_name;
       order.customer_email = orderData.customer_email;
-      order.total_amount = orderData.total_amount;
+      order.total_items = calculateTotalOrderedItems(orderData.order_items);
+      order.total_value = calculateTotalOrderValue(orderData.order_items);
 
       const orderItems: OrderItem[] = orderData.order_items.map(
         (itemData: OrderItemDto) => {
@@ -47,7 +53,9 @@ export class OrderService {
       this.logger.log(`Order items: ${JSON.stringify(order)}`);
 
       // Save OrderItem entities separately
-      const savedOrderItems = await this.orderItemRepository.save(orderItems);
+      //const savedOrderItems = await this.orderItemRepository.save(orderItems);
+
+      const savedOrderItems = await queryRunner.manager.save(orderItems);
 
       this.logger.log(`Saved order items: ${savedOrderItems}`);
 
@@ -55,7 +63,10 @@ export class OrderService {
       order.order_items = savedOrderItems;
 
       // Save the Order entity
-      this.orderRepository.save(order);
+      //this.orderRepository.save(order);
+
+      await queryRunner.manager.save(order);
+      await queryRunner.commitTransaction();
 
       this.logger.log(
         `Order was validated and created, publishing event to update inventory.`,
@@ -68,6 +79,10 @@ export class OrderService {
       );
     } catch (error) {
       this.logger.error(`Error creating order: ${error}`);
+      await queryRunner.rollbackTransaction();
+    } finally {
+      // you need to release a queryRunner which was manually instantiated
+      await queryRunner.release();
     }
   }
 
@@ -96,4 +111,12 @@ export class OrderService {
   async orderFailed(): Promise<void> {
     // DO STUFF
   }
+}
+
+function calculateTotalOrderValue(orderItems: OrderItemDto[]): number {
+  return orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+}
+
+function calculateTotalOrderedItems(orderItems: OrderItemDto[]): number {
+  return orderItems.reduce((acc, item) => acc + item.quantity, 0);
 }
