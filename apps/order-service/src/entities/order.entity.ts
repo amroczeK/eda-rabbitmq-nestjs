@@ -19,7 +19,10 @@ export class Order {
   customer_email: string;
 
   @Column({ type: 'numeric' })
-  total_amount: number;
+  total_value: number;
+
+  @Column({ type: 'numeric' })
+  total_items: number;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
   order_items: OrderItem[];

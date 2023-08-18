@@ -4,8 +4,26 @@ import { UpdateInventoryDto } from './dtos/inventory.dto';
 import {
   RabbitPayload,
   RabbitRPC,
+  RabbitRequest,
   RabbitSubscribe,
 } from '@golevelup/nestjs-rabbitmq';
+
+export interface IRabbitRequest {
+  fields: {
+    consumerTag: string;
+    deliveryTag: number;
+    redelivered: boolean;
+    exchange: string;
+    routingKey: string;
+  };
+  properties: {
+    headers: object;
+  };
+  content: {
+    type: string;
+    data: number[];
+  };
+}
 
 @Controller()
 export class InventoryServiceController {
@@ -15,23 +33,27 @@ export class InventoryServiceController {
 
   @RabbitSubscribe({
     exchange: 'shop.topic',
-    routingKey: 'shop.inventory.update',
+    routingKey: 'shop.inventory.*',
     queue: 'inventory',
   })
   async handleUpdateInventory(
-    @RabbitPayload() inventoryData: UpdateInventoryDto,
+    @RabbitPayload() inventoryData: UpdateInventoryDto[],
+    @RabbitRequest() request: IRabbitRequest,
   ): Promise<void> {
-    this.logger.log(`Updating product: ${inventoryData.product_name}`);
-  }
-
-  @RabbitSubscribe({
-    exchange: 'shop.topic',
-    routingKey: 'shop.order.created',
-    queue: 'inventory',
-  })
-  async handleOrderCreated(@RabbitPayload() data: any): Promise<void> {
-    this.logger.log('handleOrderCreated() received');
-    this.inventoryService.updateInventoryFromOrder(data);
+    this.logger.log(`handleUpdateInventory()`);
+    const routingKey = request.fields.routingKey;
+    switch (routingKey) {
+      case 'shop.inventory.update': {
+        this.inventoryService.updateInventory(inventoryData);
+        break;
+      }
+      default: {
+        this.logger.log(
+          `There is no handler for message with routing key: ${routingKey}`,
+        );
+        break;
+      }
+    }
   }
 
   @RabbitRPC({

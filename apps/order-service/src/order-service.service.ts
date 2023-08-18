@@ -57,12 +57,14 @@ export class OrderService {
       // Save the Order entity
       this.orderRepository.save(order);
 
-      this.logger.log(`Order was validated and created, publishing event.`);
+      this.logger.log(
+        `Order was validated and created, publishing event to update inventory.`,
+      );
 
       await this.amqpConnection.publish(
         'shop.topic',
-        'shop.order.created',
-        orderData,
+        'shop.inventory.update',
+        savedOrderItems,
       );
     } catch (error) {
       this.logger.error(`Error creating order: ${error}`);

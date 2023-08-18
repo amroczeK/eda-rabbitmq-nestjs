@@ -23,11 +23,15 @@ export class InventoryService {
     }
   }
 
-  async updateInventoryFromOrder(data: any): Promise<void> {
+  async updateInventory(data: any): Promise<void> {
     try {
-      this.logger.log(`Updating inventory based on order: ${data}`);
+      this.logger.log(
+        `Updating inventory based for items: ${JSON.stringify(data)}`,
+      );
     } catch (error) {
-      this.logger.error(`Error updating inventory based on order: ${data}`);
+      this.logger.error(
+        `Error updating inventory for items:  ${JSON.stringify(data)}`,
+      );
     }
   }
 
