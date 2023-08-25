@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { InventoryService } from './inventory-service.service';
-import { UpdateInventoryDto } from './dtos/inventory.dto';
+import { UpdateInventoryDto } from './dtos/update-inventory.dto';
 import {
   RabbitPayload,
   RabbitRPC,

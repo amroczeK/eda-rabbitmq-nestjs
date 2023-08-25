@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsNumber, Min } from 'class-validator';
 
-export class UpdateInventoryDto {
+export class CreateInventoryDto {
   @IsString()
   @IsNotEmpty()
   product_name: string;

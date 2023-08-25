@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Logger, HttpCode } from '@nestjs/common';
-import { CreateOrderDto } from 'apps/order-service/src/dtos/order.dto';
+import { CreateOrderDto } from 'apps/order-service/src/dtos/create-order.dto';
 import { IntermediaryService } from './intermediary.service';
 
 @Controller('intermediary')

@@ -1,6 +1,6 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateOrderDto } from 'apps/order-service/src/dtos/order.dto';
+import { CreateOrderDto } from 'apps/order-service/src/dtos/create-order.dto';
 
 @Injectable()
 export class IntermediaryService {
