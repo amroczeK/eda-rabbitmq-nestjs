@@ -18,6 +18,16 @@ Simple ordering system demonstrating Event Driven Architecture using NestJs for 
 
 ![Architecture Diagram](/docs/architecture.png)
 
+### Additional considerations
+
+Slight coupling is created due to the RPC Queue between Order and Inventory service, this could be avoided by:
+
+- Order service querying the DB directory to check the Inventory table.
+- Push the operation of validating the inventory before inserting an Order onto the DB.
+- Reduce operations against the DB to check Inventory table using caching.
+
+All options come with their own caveats, and other considerations need to be made if database is spread across geolocations for resilience.
+
 # Installation
 
 ## Prerequisites

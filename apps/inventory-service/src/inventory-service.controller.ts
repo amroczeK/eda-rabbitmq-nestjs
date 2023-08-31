@@ -20,12 +20,12 @@ export class InventoryServiceController {
     routingKey: 'shop.inventory.*',
     queue: 'inventory',
   })
-  async handleUpdateInventory(
+  async handleInventory(
     @RabbitPayload()
     inventoryData: any,
     @RabbitRequest() request: IRabbitRequest,
   ): Promise<void> {
-    this.logger.log(`handleUpdateInventory()`);
+    this.logger.log(`handleInventory()`);
     const routingKey = request.fields.routingKey;
     switch (routingKey) {
       case 'shop.inventory.create': {
