@@ -1,29 +1,13 @@
 import { Controller, Logger } from '@nestjs/common';
 import { InventoryService } from './inventory-service.service';
-import { UpdateInventoryDto } from './dtos/update-inventory.dto';
 import {
   RabbitPayload,
   RabbitRPC,
   RabbitRequest,
   RabbitSubscribe,
 } from '@golevelup/nestjs-rabbitmq';
-
-export interface IRabbitRequest {
-  fields: {
-    consumerTag: string;
-    deliveryTag: number;
-    redelivered: boolean;
-    exchange: string;
-    routingKey: string;
-  };
-  properties: {
-    headers: object;
-  };
-  content: {
-    type: string;
-    data: number[];
-  };
-}
+import { IRabbitRequest } from '@app/common/interfaces';
+import { Inventory } from './entities/inventory.entity';
 
 @Controller()
 export class InventoryServiceController {
@@ -37,14 +21,31 @@ export class InventoryServiceController {
     queue: 'inventory',
   })
   async handleUpdateInventory(
-    @RabbitPayload() inventoryData: UpdateInventoryDto[],
+    @RabbitPayload()
+    inventoryData: any,
     @RabbitRequest() request: IRabbitRequest,
   ): Promise<void> {
     this.logger.log(`handleUpdateInventory()`);
     const routingKey = request.fields.routingKey;
     switch (routingKey) {
+      case 'shop.inventory.create': {
+        // TODO: Validate payload
+        this.inventoryService.createInventory(inventoryData);
+        break;
+      }
+      case 'shop.inventory.list': {
+        // TODO: Validate payload
+        this.inventoryService.listInventory();
+        break;
+      }
       case 'shop.inventory.update': {
+        // TODO: Validate payload
         this.inventoryService.updateInventory(inventoryData);
+        break;
+      }
+      case 'shop.inventory.delete': {
+        // TODO: Validate payload
+        this.inventoryService.removeFromInventory(inventoryData);
         break;
       }
       default: {
@@ -62,7 +63,7 @@ export class InventoryServiceController {
     queue: 'inventory-rpc-queue',
   })
   async handleCheckInventory(
-    @RabbitPayload() inventoryData: UpdateInventoryDto,
+    @RabbitPayload() inventoryData: Inventory[],
   ): Promise<boolean> {
     this.logger.log(`handleCheckInventory()`);
     return this.inventoryService.checkInventory(inventoryData);
