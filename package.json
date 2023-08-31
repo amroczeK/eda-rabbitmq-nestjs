@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/eda-rabbitmq-nestjs/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/eda-rabbitmq-nestjs/test/jest-e2e.json",
+    "typeorm": "ts-node ./node_modules/typeorm/cli",
+    "typeorm:create-migration": "npm run typeorm -- migration:create ./migrations/$npm_config_name",
+    "typeorm:run-migrations": "npm run typeorm migration:run -- -d ./type-orm.config.ts",
+    "typeorm:revert-migrations": "npm run typeorm migration:revert -- -d ./type-orm.config.ts"
   },
   "dependencies": {
     "@golevelup/nestjs-rabbitmq": "^4.0.0",

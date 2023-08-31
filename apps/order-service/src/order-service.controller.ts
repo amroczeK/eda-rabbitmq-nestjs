@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { OrderService } from './order-service.service';
-import { CreateOrderDto } from './dtos/order.dto';
+import { CreateOrderDto } from './dtos/create-order.dto';
 import { RabbitPayload, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 @Controller()
