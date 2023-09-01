@@ -39,9 +39,7 @@ export class InventoryService {
         `Created items in inventory: ${JSON.stringify(inventoryData)}`,
       );
     } catch (error) {
-      this.logger.error(
-        `Error creating items in inventory: ${JSON.stringify(error)}`,
-      );
+      this.logger.error(`Error creating items in inventory: ${error}`);
       await queryRunner.rollbackTransaction();
     } finally {
       await queryRunner.release();
@@ -54,7 +52,7 @@ export class InventoryService {
       this.logger.log(`Inventory list: ${JSON.stringify(items)}`);
       // Implement logic to retrieve all items from inventory and send to presentation layer via TCP/Websockets
     } catch (error) {
-      this.logger.error(`Error retrieving items in inventory.`);
+      this.logger.error(`Error retrieving items in inventory: ${error}`);
     }
   }
 
@@ -87,7 +85,7 @@ export class InventoryService {
         `Updating inventory, items: ${JSON.stringify(inventoryData)}`,
       );
     } catch (error) {
-      this.logger.error(`Error updating inventory.`);
+      this.logger.error(`Error updating inventory: ${error}`);
       await queryRunner.rollbackTransaction();
     } finally {
       await queryRunner.release();
@@ -110,7 +108,51 @@ export class InventoryService {
       await queryRunner.commitTransaction();
       this.logger.log(`Removing items from inventory.`);
     } catch (error) {
-      this.logger.error(`Error removing items from inventory.`);
+      this.logger.error(`Error removing items from inventory: ${error}`);
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async decrementQuantity(inventoryData: UpdateInventoryDto[]): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      for (const item of inventoryData) {
+        this.logger.log(`Ordered item: ${JSON.stringify(item)}`);
+        const { id, product_name, quantity } = item;
+
+        const existingProduct = await queryRunner.manager.findOne(Inventory, {
+          where: { id: id },
+        });
+
+        if (!existingProduct) {
+          throw new Error(
+            `Product with ID ${id} and product name ${product_name} not found.`,
+          );
+        }
+        const updatedQuantity = Math.max(
+          existingProduct.quantity - quantity,
+          0,
+        );
+        existingProduct.quantity = updatedQuantity;
+        await queryRunner.manager.save(existingProduct);
+        this.logger.log(`Updated item: ${JSON.stringify(existingProduct)}`);
+      }
+      await queryRunner.commitTransaction();
+
+      this.logger.log(
+        `Updating inventory, items: ${JSON.stringify(inventoryData)}`,
+      );
+    } catch (error) {
+      console.error(error);
+      this.logger.error(
+        `Error updating ordered items quantity in inventory: ${error}`,
+      );
       await queryRunner.rollbackTransaction();
     } finally {
       await queryRunner.release();
@@ -120,11 +162,13 @@ export class InventoryService {
   async checkInventory(inventoryData: Inventory[]): Promise<boolean> {
     try {
       for (const item of inventoryData) {
+        this.logger.log(`Ordered Item: ${JSON.stringify(item)}`);
         const existingProduct = await this.inventoryRepository.findOne({
           where: {
             id: item.id,
           },
         });
+        this.logger.log(`Existing Item: ${JSON.stringify(item)}`);
 
         if (!existingProduct) {
           this.logger.error(
@@ -146,7 +190,7 @@ export class InventoryService {
       );
       return true;
     } catch (error) {
-      this.logger.error(`Error checking inventory: ${error.message}`);
+      this.logger.error(`Error checking inventory: ${error}`);
       throw new Error('Failed to check inventory'); // Or return false if you prefer not to throw
     }
   }

@@ -17,7 +17,7 @@ export class InventoryServiceController {
 
   @RabbitSubscribe({
     exchange: 'shop.topic',
-    routingKey: 'shop.inventory.*',
+    routingKey: 'shop.inventory.#',
     queue: 'inventory',
   })
   async handleInventory(
@@ -25,8 +25,8 @@ export class InventoryServiceController {
     inventoryData: any,
     @RabbitRequest() request: IRabbitRequest,
   ): Promise<void> {
-    this.logger.log(`handleInventory()`);
     const routingKey = request.fields.routingKey;
+    this.logger.log(`handleInventory(): ${routingKey}`);
     switch (routingKey) {
       case 'shop.inventory.create': {
         // TODO: Validate payload
@@ -48,6 +48,11 @@ export class InventoryServiceController {
         this.inventoryService.removeFromInventory(inventoryData);
         break;
       }
+      case 'shop.inventory.decrement.quantity': {
+        // TODO: Validate payload
+        this.inventoryService.decrementQuantity(inventoryData);
+        break;
+      }
       default: {
         this.logger.log(
           `There is no handler for message with routing key: ${routingKey}`,
@@ -65,7 +70,7 @@ export class InventoryServiceController {
   async handleCheckInventory(
     @RabbitPayload() inventoryData: Inventory[],
   ): Promise<boolean> {
-    this.logger.log(`handleCheckInventory()`);
+    this.logger.log(`handleCheckInventory(): ${JSON.stringify(inventoryData)}`);
     return this.inventoryService.checkInventory(inventoryData);
   }
 }

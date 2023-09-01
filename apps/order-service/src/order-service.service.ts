@@ -25,7 +25,9 @@ export class OrderService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      this.logger.log(`Order received 123: ${JSON.stringify(orderData)}`);
+      this.logger.log(
+        `Validating stock for order: ${JSON.stringify(orderData)}`,
+      );
 
       const stockAvailable = await this.validateStockAvailableInInventory(
         orderData,
@@ -49,33 +51,22 @@ export class OrderService {
         },
       );
 
-      this.logger.log(`Order: ${JSON.stringify(order)}`);
-      this.logger.log(`Order items: ${JSON.stringify(order)}`);
-
-      // Save OrderItem entities separately
-      //const savedOrderItems = await this.orderItemRepository.save(orderItems);
-
       const savedOrderItems = await queryRunner.manager.save(orderItems);
 
-      this.logger.log(`Saved order items: ${savedOrderItems}`);
+      this.logger.log(`Saved order items: ${JSON.stringify(savedOrderItems)}`);
 
       // Associate the saved OrderItem entities with the Order entity
       order.order_items = savedOrderItems;
 
-      // Save the Order entity
-      //this.orderRepository.save(order);
-
       await queryRunner.manager.save(order);
       await queryRunner.commitTransaction();
 
-      this.logger.log(
-        `Order was validated and created, publishing event to update inventory.`,
-      );
+      this.logger.log(`Order created: ${JSON.stringify(order)}.`);
 
       await this.amqpConnection.publish(
         'shop.topic',
-        'shop.inventory.update',
-        savedOrderItems,
+        'shop.inventory.decrement.quantity',
+        orderData.order_items,
       );
     } catch (error) {
       this.logger.error(`Error creating order: ${error}`);
@@ -90,15 +81,14 @@ export class OrderService {
     orderData: CreateOrderDto,
   ): Promise<boolean> {
     try {
-      const response = await this.amqpConnection.request<any>({
+      const result = await this.amqpConnection.request<boolean>({
         exchange: 'shop.direct',
         routingKey: 'shop.inventory.check',
-        payload: {
-          request: orderData,
-        },
+        payload: orderData.order_items,
         timeout: 10000,
       });
-      return response;
+      this.logger.log(`Stock available for all items: ${result}`);
+      return result;
     } catch (error) {
       throw error;
     }

@@ -8,6 +8,10 @@ import {
 } from 'class-validator';
 
 export class OrderItemDto {
+  @IsNumber()
+  @Min(1)
+  id: number;
+
   @IsString()
   @IsNotEmpty()
   product_name: string;
