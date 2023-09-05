@@ -2,6 +2,8 @@
 
 Simple ordering system demonstrating Event Driven Architecture using NestJs for microservices and RabbitMQ as the message broker for intercommunication between microservices using Topic exchange and RPC patterns.
 
+This repository utilizes NestJs monorepo workspaces to share re-usable code and modules across services and the [@golevelup/nestjs-rabbitmq](https://www.npmjs.com/package/@golevelup/nestjs-rabbitmq) module.
+
 # Table of contents
 
 <!--ts-->
