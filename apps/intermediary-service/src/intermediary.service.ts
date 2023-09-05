@@ -8,7 +8,7 @@ export class IntermediaryService {
 
   constructor(private readonly amqpConnection: AmqpConnection) {}
 
-  async publishOrder(orderData: CreateOrderDto): Promise<string> {
+  async CreateOrder(orderData: CreateOrderDto): Promise<string> {
     try {
       await this.amqpConnection.publish(
         'shop.topic',
@@ -16,6 +16,21 @@ export class IntermediaryService {
         orderData,
       );
       this.logger.log(`Order successfully published.`);
+      return 'Order published successfully!';
+    } catch (error) {
+      this.logger.error(`Failed to publish order`);
+      throw new Error(`Failed to publish order: ${error.message}`);
+    }
+  }
+
+  async ListInventory(): Promise<string> {
+    try {
+      await this.amqpConnection.publish(
+        'shop.topic',
+        'shop.inventory.list',
+        {},
+      );
+      this.logger.log(`List inventory successfully published.`);
       return 'Order published successfully!';
     } catch (error) {
       this.logger.error(`Failed to publish order`);

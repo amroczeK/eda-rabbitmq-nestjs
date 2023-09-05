@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Logger, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, Logger, HttpCode, Get } from '@nestjs/common';
 import { CreateOrderDto } from 'apps/order-service/src/dtos/create-order.dto';
 import { IntermediaryService } from './intermediary.service';
 
@@ -8,10 +8,17 @@ export class IntermediaryController {
 
   constructor(private readonly intermediaryService: IntermediaryService) {}
 
-  @Post('/publish-order')
+  @Post('/order')
   @HttpCode(200)
-  async publishOrder(@Body() orderData: CreateOrderDto): Promise<string> {
+  async CreateOrder(@Body() orderData: CreateOrderDto): Promise<string> {
     this.logger.log(`Publish order controller hit.`);
-    return this.intermediaryService.publishOrder(orderData);
+    return this.intermediaryService.CreateOrder(orderData);
+  }
+
+  @Get('/inventory')
+  @HttpCode(200)
+  async ListInventory(): Promise<string> {
+    this.logger.log(`Publish order controller hit.`);
+    return this.intermediaryService.ListInventory();
   }
 }
