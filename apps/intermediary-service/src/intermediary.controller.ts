@@ -11,14 +11,12 @@ export class IntermediaryController {
   @Post('/order')
   @HttpCode(200)
   async CreateOrder(@Body() orderData: CreateOrderDto): Promise<string> {
-    this.logger.log(`Publish order controller hit.`);
     return this.intermediaryService.CreateOrder(orderData);
   }
 
   @Get('/inventory')
   @HttpCode(200)
   async ListInventory(): Promise<string> {
-    this.logger.log(`Publish order controller hit.`);
     return this.intermediaryService.ListInventory();
   }
 }

@@ -16,7 +16,7 @@ export class IntermediaryService {
         orderData,
       );
       this.logger.log(`Order successfully published.`);
-      return 'Order published successfully!';
+      return 'Order successfully published.';
     } catch (error) {
       this.logger.error(`Failed to publish order`);
       throw new Error(`Failed to publish order: ${error.message}`);
@@ -31,7 +31,7 @@ export class IntermediaryService {
         {},
       );
       this.logger.log(`List inventory successfully published.`);
-      return 'Order published successfully!';
+      return 'List inventory successfully published.';
     } catch (error) {
       this.logger.error(`Failed to publish order`);
       throw new Error(`Failed to publish order: ${error.message}`);
