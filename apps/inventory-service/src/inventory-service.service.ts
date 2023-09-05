@@ -127,7 +127,6 @@ export class InventoryService {
       await queryRunner.startTransaction();
 
       for (const item of inventoryData) {
-        this.logger.log(`Ordered item: ${JSON.stringify(item)}`);
         const { id, product_name, quantity } = item;
 
         const existingProduct = await queryRunner.manager.findOne(Inventory, {
@@ -145,15 +144,12 @@ export class InventoryService {
         );
         existingProduct.quantity = updatedQuantity;
         await queryRunner.manager.save(existingProduct);
-        this.logger.log(`Updated item: ${JSON.stringify(existingProduct)}`);
+        this.logger.log(
+          `Updated stock quantity for item: ${JSON.stringify(existingProduct)}`,
+        );
       }
       await queryRunner.commitTransaction();
-
-      this.logger.log(
-        `Updating inventory, items: ${JSON.stringify(inventoryData)}`,
-      );
     } catch (error) {
-      console.error(error);
       this.logger.error(
         `Error updating ordered items quantity in inventory: ${error}`,
       );
@@ -166,13 +162,11 @@ export class InventoryService {
   async checkInventory(inventoryData: Inventory[]): Promise<boolean> {
     try {
       for (const item of inventoryData) {
-        this.logger.log(`Ordered Item: ${JSON.stringify(item)}`);
         const existingProduct = await this.inventoryRepository.findOne({
           where: {
             id: item.id,
           },
         });
-        this.logger.log(`Existing Item: ${JSON.stringify(item)}`);
 
         if (!existingProduct) {
           this.logger.error(
@@ -190,12 +184,12 @@ export class InventoryService {
       }
 
       this.logger.log(
-        `Inventory is available for: ${JSON.stringify(inventoryData)}`,
+        `Stock is available for items: ${JSON.stringify(inventoryData)}`,
       );
       return true;
     } catch (error) {
       this.logger.error(`Error checking inventory: ${error}`);
-      throw new Error('Failed to check inventory'); // Or return false if you prefer not to throw
+      throw new Error(`Error checking inventory: ${error}`);
     }
   }
 }

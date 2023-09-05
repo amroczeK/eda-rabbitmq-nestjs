@@ -70,7 +70,6 @@ export class InventoryServiceController {
   async handleCheckInventory(
     @RabbitPayload() inventoryData: Inventory[],
   ): Promise<boolean> {
-    this.logger.log(`handleCheckInventory(): ${JSON.stringify(inventoryData)}`);
     return this.inventoryService.checkInventory(inventoryData);
   }
 }
