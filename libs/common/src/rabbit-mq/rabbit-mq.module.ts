@@ -3,6 +3,10 @@ import { RabbitMqService } from './rabbit-mq.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 
+/**
+ * Ignore this module, it's an old implementation.
+ * Just retaining the code.
+ */
 interface RabbitMqModuleOptions {
   name: string;
 }
