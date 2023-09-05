@@ -72,18 +72,59 @@ $ npm run typeorm:run-migrations
 After starting up the services via docker from the previous step, you can query the system with the following request.
 
 ```bash
-curl -X POST http://localhost:3000/intermediary/publish-order \
+# Placing an order on the frontend after selecting items to order from the displayed inventory.
+curl -X POST http://localhost:3000/intermediary/order \
      -H "Content-Type: application/json" \
      -d '{
-         "customer_name": "Adrian Test",
-         "customer_email": "test@test.com",
-         "total_amount": 1,
-         "order_items": [
-             {
-                 "product_name": "Pencil",
-                 "quantity": 3,
-                 "price": 20
-             }
-         ]
-     }'
+            "customer_name": "Adrian",
+            "customer_email": "test@test.com",
+            "order_items": [
+                {
+                    "id": 1,
+                    "product_name": "Laptop Stand",
+                    "quantity": 3,
+                    "price": 35
+                },
+                {
+                    "id": 2,
+                    "product_name": "Mouse Pad",
+                    "quantity": 4,
+                    "price": 25
+                }
+            ]
+        }'
+```
+
+Terminal logs for creating an order:
+```
+intermediary-service  | [Nest] 523  - 09/05/2023, 3:42:27 AM     LOG [IntermediaryService] Order successfully published.
+logging-service       | [Nest] 723  - 09/05/2023, 3:42:27 AM     LOG [LoggingServiceController] handleLog(): shop.order.placed
+logging-service       | [Nest] 723  - 09/05/2023, 3:42:27 AM     LOG [LoggingService] {"routing_key":"shop.order.placed","exchange":"shop.topic","payload":{"customer_name":"Adrian","customer_email":"test@test.com","order_items":[{"id":1,"product_name":"Laptop Stand","quantity":3,"price":35},{"id":2,"product_name":"Mouse Pad","quantity":4,"price":25}]},"status":"success","error_message":""}
+logging-service       | [Nest] 723  - 09/05/2023, 3:42:27 AM     LOG [LoggingService] Log created with ID: 11
+inventory-service     | [Nest] 488  - 09/05/2023, 3:42:27 AM     LOG [InventoryService] Stock is available for items: [{"id":1,"product_name":"Laptop Stand","quantity":3,"price":35},{"id":2,"product_name":"Mouse Pad","quantity":4,"price":25}]
+order-service         | [Nest] 210  - 09/05/2023, 3:42:27 AM     LOG [OrderService] Stock available for all items in order: {"customer_name":"Adrian","customer_email":"test@test.com","order_items":[{"id":1,"product_name":"Laptop Stand","quantity":3,"price":35},{"id":2,"product_name":"Mouse Pad","quantity":4,"price":25}]}
+order-service         | [Nest] 210  - 09/05/2023, 3:42:27 AM     LOG [OrderService] Saved order items: [{"product_name":"Laptop Stand","quantity":3,"price":35,"id":29},{"product_name":"Mouse Pad","quantity":4,"price":25,"id":30}]
+order-service         | [Nest] 210  - 09/05/2023, 3:42:27 AM     LOG [OrderService] Order created: {"customer_name":"Adrian","customer_email":"test@test.com","total_items":7,"total_value":205,"order_items":[{"product_name":"Laptop Stand","quantity":3,"price":35,"id":29},{"product_name":"Mouse Pad","quantity":4,"price":25,"id":30}],"id":15,"created_at":"2023-09-05T03:42:27.687Z","updated_at":"2023-09-05T03:42:27.687Z"}.
+logging-service       | [Nest] 723  - 09/05/2023, 3:42:27 AM     LOG [LoggingServiceController] handleLog(): shop.inventory.decrement.quantity
+inventory-service     | [Nest] 488  - 09/05/2023, 3:42:27 AM     LOG [InventoryServiceController] handleInventory(): shop.inventory.decrement.quantity
+logging-service       | [Nest] 723  - 09/05/2023, 3:42:27 AM     LOG [LoggingService] {"routing_key":"shop.inventory.decrement.quantity","exchange":"shop.topic","payload":[{"id":1,"product_name":"Laptop Stand","quantity":3,"price":35},{"id":2,"product_name":"Mouse Pad","quantity":4,"price":25}],"status":"success","error_message":""}
+logging-service       | [Nest] 723  - 09/05/2023, 3:42:27 AM     LOG [LoggingService] Log created with ID: 12
+inventory-service     | [Nest] 488  - 09/05/2023, 3:42:27 AM     LOG [InventoryService] Updated stock quantity for item: {"id":1,"product_name":"Laptop","quantity":129,"price":"1000","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-05T03:42:27.802Z"}
+inventory-service     | [Nest] 488  - 09/05/2023, 3:42:27 AM     LOG [InventoryService] Updated stock quantity for item: {"id":2,"product_name":"Phone","quantity":172,"price":"500","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-05T03:42:27.802Z"}
+```
+
+
+```bash
+# Retrieving all of the inventory items. Data could be sent to the frontend using Webhooks.
+curl -X GET http://localhost:3000/intermediary/inventory \
+     -H "Content-Type: application/json"
+```
+
+Terminal logs for listing inventory:
+```
+inventory-service     | [Nest] 488  - 09/05/2023, 3:41:29 AM     LOG [InventoryServiceController] handleInventory(): shop.inventory.list
+logging-service       | [Nest] 723  - 09/05/2023, 3:41:29 AM     LOG [LoggingServiceController] handleLog(): shop.inventory.list
+logging-service       | [Nest] 723  - 09/05/2023, 3:41:29 AM     LOG [LoggingService] {"routing_key":"shop.inventory.list","exchange":"shop.topic","payload":{},"status":"success","error_message":""}
+inventory-service     | [Nest] 488  - 09/05/2023, 3:41:29 AM     LOG [InventoryService] Inventory list: [{"id":1,"product_name":"Laptop","quantity":"132","price":"1000","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-05T01:41:10.805Z"},{"id":2,"product_name":"Phone","quantity":"176","price":"500","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-05T01:41:10.805Z"},{"id":3,"product_name":"Keyboard","quantity":"100","price":"50","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-04T04:13:21.165Z"},{"id":4,"product_name":"Mouse","quantity":"100","price":"45","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-04T04:13:21.165Z"},{"id":5,"product_name":"Laptop Stand","quantity":"150","price":"35","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-04T04:13:21.165Z"},{"id":6,"product_name":"Mouse Pad","quantity":"200","price":"25","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-04T04:13:21.165Z"},{"id":7,"product_name":"Phone Case","quantity":"172","price":"30","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-04T04:13:21.165Z"},{"id":8,"product_name":"KVM Switch","quantity":"96","price":"175","created_at":"2023-09-04T04:13:21.165Z","updated_at":"2023-09-04T04:13:21.165Z"}]
+logging-service       | [Nest] 723  - 09/05/2023, 3:41:29 AM     LOG [LoggingService] Log created with ID: 10
 ```

@@ -3,6 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { RmqContext, RmqOptions, Transport } from '@nestjs/microservices';
 import { connect, Connection, Channel } from 'amqplib';
 
+/**
+ * Ignore this service, it's an old manual implementation of connecting to RabbitMQ
+ * asserting exchanges and binding queues.
+ * Just retaining the code.
+ */
 @Injectable()
 export class RabbitMqService {
   private connection: Connection;
@@ -38,6 +43,7 @@ export class RabbitMqService {
         });
         break;
       } catch (err) {
+        this.logger.error(err);
         this.logger.error(
           `Failed to connect to RabbitMQ. Retrying in ${
             this.retryDelay / 1000
@@ -52,6 +58,7 @@ export class RabbitMqService {
     }
   }
 
+  // TODO: Separate out exchange assertion and queue binding and implement better error handling
   private async connect() {
     this.connection = await connect(
       this.configService.get<string>('RABBIT_MQ_URI'),

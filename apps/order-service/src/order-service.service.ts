@@ -25,15 +25,15 @@ export class OrderService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      this.logger.log(
-        `Validating stock for order: ${JSON.stringify(orderData)}`,
-      );
-
       const stockAvailable = await this.validateStockAvailableInInventory(
         orderData,
       );
 
       if (!stockAvailable) throw 'Order has items with unavailable stock.';
+
+      this.logger.log(
+        `Stock available for all items in order: ${JSON.stringify(orderData)}`,
+      );
 
       const order = new Order();
       order.customer_name = orderData.customer_name;
@@ -87,7 +87,6 @@ export class OrderService {
         payload: orderData.order_items,
         timeout: 10000,
       });
-      this.logger.log(`Stock available for all items: ${result}`);
       return result;
     } catch (error) {
       throw error;

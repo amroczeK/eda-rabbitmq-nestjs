@@ -88,3 +88,23 @@ services:
       - /usr/src/app/node_modules
     env_file:
       - ./apps/inventory-service/.env
+
+  logging-service:
+    build:
+      context: .
+      dockerfile: ./apps/logging-service/Dockerfile
+      target: development
+    command: npm run start:dev logging-service
+    hostname: logging-service
+    container_name: logging-service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+      db:
+        condition: service_started
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - ./apps/logging-service/.env

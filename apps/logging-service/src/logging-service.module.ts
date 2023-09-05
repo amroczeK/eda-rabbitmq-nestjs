@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { InventoryServiceController } from './inventory-service.controller';
-import { InventoryService } from './inventory-service.service';
+import { LoggingServiceController } from './logging-service.controller';
+import { LoggingService } from './logging-service.service';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Inventory } from './entities/inventory.entity';
-import { DatabaseModule } from '@app/common/database/database.module';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { DatabaseModule } from '@app/common/database/database.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventLog } from './entities/event-log.entity';
 import * as Joi from 'joi';
 
 @Module({
@@ -14,14 +14,13 @@ import * as Joi from 'joi';
       isGlobal: true,
       validationSchema: Joi.object({
         RABBIT_MQ_URI: Joi.string().required(),
-        RABBIT_MQ_INVENTORY_QUEUE: Joi.string().required(),
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),
       }),
-      envFilePath: './apps/inventory-service/.env',
+      envFilePath: './apps/logging-service/.env',
     }),
     RabbitMQModule.forRoot(RabbitMQModule, {
       exchanges: [
@@ -29,18 +28,14 @@ import * as Joi from 'joi';
           name: 'shop.topic',
           type: 'topic',
         },
-        {
-          name: 'shop.direct',
-          type: 'direct',
-        },
       ],
       uri: process.env.RABBIT_MQ_URI,
       enableControllerDiscovery: true,
     }),
     DatabaseModule,
-    TypeOrmModule.forFeature([Inventory]),
+    TypeOrmModule.forFeature([EventLog]),
   ],
-  controllers: [InventoryServiceController],
-  providers: [InventoryService, InventoryServiceController],
+  controllers: [LoggingServiceController],
+  providers: [LoggingService],
 })
-export class InventoryServiceModule {}
+export class LoggingServiceModule {}
