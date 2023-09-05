@@ -34,7 +34,7 @@ import * as Joi from 'joi';
           type: 'direct',
         },
       ],
-      uri: 'amqp://guest:guest@rabbitmq:5672',
+      uri: process.env.RABBIT_MQ_URI,
       enableControllerDiscovery: true,
     }),
     DatabaseModule,
