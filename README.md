@@ -63,7 +63,7 @@ bfba0a0e3152   eda-rabbitmq-nestjs-intermediary-service   "docker-entrypoint.sâ€
 b3cc7b9cf65c   rabbitmq:3.12-management                   "docker-entrypoint.sâ€¦"   48 minutes ago   Up 47 minutes (healthy)   4369/tcp, 5671/tcp, 0.0.0.0:5672->5672/tcp, 15671/tcp, 15691-15692/tcp, 25672/tcp, 0.0.0.0:15672->15672/tcp   rabbitmq
 
 # Open a terminal (e.g. a bash shell) to the container
-$ docker exec -it <container_id_or_name> /bin/bash
+$ docker exec -it <container_id_or_name> /bin/sh
 
 # Run the migration script
 $ npm run typeorm:run-migrations
