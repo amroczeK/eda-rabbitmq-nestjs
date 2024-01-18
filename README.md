@@ -4,6 +4,8 @@ Simple ordering system demonstrating Event Driven Architecture using NestJs for 
 
 This repository utilizes NestJs monorepo workspaces to share re-usable code and modules across services and the [@golevelup/nestjs-rabbitmq](https://www.npmjs.com/package/@golevelup/nestjs-rabbitmq) module.
 
+NOTE: This personal project was rushed as a learning/upskilling exercise and is not production quality.
+
 # Table of contents
 
 <!--ts-->
